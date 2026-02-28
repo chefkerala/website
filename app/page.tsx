@@ -43,13 +43,13 @@ const Icons = {
   Search: () => <span className="text-xl">🔍</span>,
   Menu: () => <span className="text-xl">☰</span>,
   Close: () => <span className="text-xl">✕</span>,
-  Star: () => <span className="text-yellow-400 text-lg">★</span>,
+  Star: () => <span className="text-black text-lg">★</span>,
   Truck: () => <span className="text-xl">🚚</span>,
   Shield: () => <span className="text-xl">🛡️</span>,
   Leaf: () => <span className="text-xl">🌿</span>,
   Clock: () => <span className="text-xl">⏰</span>,
   Arrow: () => <span className="text-xl">→</span>,
-  Heart: () => <span className="text-xl text-red-500">❤️</span>,
+  Heart: () => <span className="text-xl text-black">❤️</span>,
   HeartOutline: () => <span className="text-xl">🤍</span>,
   Minus: () => <span className="text-xl">−</span>,
   Plus: () => <span className="text-xl">+</span>,
@@ -65,7 +65,7 @@ const Icons = {
   Cart: () => <span className="text-xl">🛒</span>,
   Flash: () => <span className="text-xl">⚡</span>,
   Fire: () => <span className="text-xl">🔥</span>,
-  Check: () => <span className="text-xl text-green-500">✓</span>,
+  Check: () => <span className="text-xl text-black">✓</span>,
   Info: () => <span className="text-xl">ℹ️</span>,
   Trending: () => <span className="text-xl">📈</span>,
   Filter: () => <span className="text-xl">⚙️</span>,
@@ -664,11 +664,11 @@ export default function Home() {
               <Icons.Leaf />
             </div>
           </motion.div>
-          <motion.p
+            <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-emerald-800 font-medium"
+            className="text-black font-medium"
           >
             Loading premium spices...
           </motion.p>
@@ -723,7 +723,7 @@ export default function Home() {
             >
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <h2 className="text-2xl font-bold">{selectedProduct.name}</h2>
+                  <h2 className="text-2xl font-bold text-black">{selectedProduct.name}</h2>
                   <button
                     onClick={() => setShowProductModal(false)}
                     className="p-2 hover:bg-gray-100 rounded-full"
@@ -745,20 +745,20 @@ export default function Home() {
                   {/* Product Details */}
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-sm">
+                      <span className="bg-emerald-100 text-black px-2 py-1 rounded text-sm">
                         {selectedProduct.badge}
                       </span>
-                      <span className="text-sm text-gray-500">{selectedProduct.origin}</span>
+                      <span className="text-sm text-black">{selectedProduct.origin}</span>
                     </div>
 
-                    <p className="text-gray-600 mb-4">{selectedProduct.fullDescription}</p>
+                    <p className="text-black mb-4">{selectedProduct.fullDescription}</p>
 
                     {/* Rating */}
                     <div className="flex items-center gap-2 mb-4">
                       <span className="bg-green-600 text-white px-2 py-1 rounded flex items-center gap-1">
                         {selectedProduct.rating} <Icons.Star />
                       </span>
-                      <span className="text-gray-500">{selectedProduct.reviews} reviews</span>
+                      <span className="text-black">{selectedProduct.reviews} reviews</span>
                     </div>
 
                     {/* Benefits */}
@@ -766,7 +766,7 @@ export default function Home() {
                       <h3 className="font-semibold mb-2">Benefits:</h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedProduct.benefits.map((benefit, idx) => (
-                          <span key={idx} className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-sm">
+                          <span key={idx} className="bg-emerald-50 text-black px-3 py-1 rounded-full text-sm">
                             {benefit}
                           </span>
                         ))}
@@ -775,15 +775,15 @@ export default function Home() {
 
                     {/* Prices and Add to Cart */}
                     <div className="space-y-3 mb-4">
-                      <h3 className="font-semibold">Available Sizes:</h3>
+                      <h3 className="font-semibold text-black">Available Sizes:</h3>
                       {(Object.entries(selectedProduct.prices) as [WeightOption, number][]).map(([weight, price]) => {
                         const key = `${selectedProduct.id}-${weight}`;
                         const qty = quantities[key] || 0;
                         return (
                           <div key={weight} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                             <div>
-                              <span className="font-medium">{weight}</span>
-                              <span className="ml-2 text-emerald-700 font-bold">₹{price}</span>
+                              <span className="font-medium text-black">{weight}</span>
+                              <span className="ml-2 text-black font-bold">₹{price}</span>
                             </div>
                             <div className="flex items-center gap-3">
                               <div className="flex items-center gap-2">
@@ -858,13 +858,13 @@ export default function Home() {
               className="bg-white rounded-2xl max-w-md w-full p-6"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-center mb-4">
+                  <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold">Enter Delivery Pincode</h3>
                 <button onClick={() => setShowPincodeModal(false)} className="p-2">
                   <Icons.Close />
                 </button>
               </div>
-              <p className="text-gray-600 mb-4">Check if we deliver to your location</p>
+              <p className="text-black mb-4">Check if we deliver to your location</p>
               <input
                 type="text"
                 value={deliveryPincode}
@@ -910,7 +910,7 @@ export default function Home() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-28 left-1/2 transform -translate-x-1/2 z-40 bg-orange-100 text-orange-800 px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm"
+            className="fixed top-28 left-1/2 transform -translate-x-1/2 z-40 bg-orange-100 text-black px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm"
           >
             <Icons.Warning />
             Add ₹{500 - cartSubtotal} more for FREE delivery!
@@ -940,8 +940,8 @@ export default function Home() {
                   />
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="text-base md:text-lg font-bold text-emerald-700">ChefKerala</h1>
-                  <p className="text-[10px] text-gray-500">Premium Spices</p>
+                  <h1 className="text-base md:text-lg font-bold text-black">ChefKerala</h1>
+                  <p className="text-[10px] text-black">Premium Spices</p>
                 </div>
               </motion.div>
 
@@ -958,8 +958,8 @@ export default function Home() {
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`text-sm font-medium capitalize ${
                       selectedCategory === cat.id 
-                        ? 'text-emerald-600 border-b-2 border-emerald-600 pb-1' 
-                        : 'text-gray-600 hover:text-emerald-600'
+                        ? 'text-black border-b-2 border-emerald-600 pb-1' 
+                          : 'text-black hover:text-black'
                     }`}
                   >
                     {cat.name}
@@ -1049,8 +1049,8 @@ export default function Home() {
                   }}
                   className={`p-3 rounded-lg text-center ${
                     selectedCategory === cat.id 
-                      ? 'bg-emerald-100 text-emerald-700' 
-                      : 'bg-gray-50 text-gray-600'
+                      ? 'bg-emerald-100 text-black' 
+                      : 'bg-gray-50 text-black'
                   }`}
                 >
                   <div className="text-2xl mb-1">{cat.icon}</div>
@@ -1088,7 +1088,7 @@ export default function Home() {
               {cartItems.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="text-6xl mb-4">🛒</div>
-                  <p className="text-gray-500 mb-4">Your cart is empty</p>
+                  <p className="text-black mb-4">Your cart is empty</p>
                   <button
                     onClick={() => {
                       setShowCart(false);
@@ -1124,7 +1124,7 @@ export default function Home() {
                         </div>
                         <div className="flex-1">
                           <h3 
-                            className="font-semibold text-sm cursor-pointer hover:text-emerald-600"
+                            className="font-semibold text-sm cursor-pointer hover:text-black"
                             onClick={() => {
                               setSelectedProduct(item);
                               setShowProductModal(true);
@@ -1133,9 +1133,9 @@ export default function Home() {
                           >
                             {item.name}
                           </h3>
-                          <p className="text-xs text-gray-500">{item.selectedWeight}</p>
+                          <p className="text-xs text-black">{item.selectedWeight}</p>
                           <div className="flex justify-between items-center mt-2">
-                            <span className="font-bold text-emerald-700">₹{item.subtotal}</span>
+                            <span className="font-bold text-black">₹{item.subtotal}</span>
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => updateQuantity(item.id, item.selectedWeight, -1)}
@@ -1157,7 +1157,7 @@ export default function Home() {
                         </div>
                         <button
                           onClick={() => removeFromCart(item.id, item.selectedWeight)}
-                          className="text-gray-400 hover:text-red-500"
+                          className="text-black hover:text-black"
                         >
                           <Icons.Close />
                         </button>
@@ -1172,13 +1172,13 @@ export default function Home() {
                       <div>
                         <p className="font-medium">Delivery Charges:</p>
                         {cartSubtotal >= 500 ? (
-                          <p className="text-green-600">✓ Free Delivery</p>
+                          <p className="text-black">✓ Free Delivery</p>
                         ) : (
                           <>
-                            <p className="text-gray-600">
+                            <p className="text-black">
                               {itemCount >= 5 ? '₹100' : '₹50'} delivery charge
                             </p>
-                            <p className="text-xs text-orange-600 mt-1">
+                            <p className="text-xs text-black mt-1">
                               Add ₹{500 - cartSubtotal} more for free delivery
                             </p>
                           </>
@@ -1190,18 +1190,18 @@ export default function Home() {
                   {/* Cart Summary */}
                   <div className="border-t pt-4 mb-4">
                     <div className="flex justify-between mb-2 text-sm">
-                      <span className="text-gray-600">Subtotal:</span>
+                      <span className="text-black">Subtotal:</span>
                       <span className="font-semibold">₹{cartSubtotal}</span>
                     </div>
                     <div className="flex justify-between mb-2 text-sm">
-                      <span className="text-gray-600">Delivery:</span>
-                      <span className={deliveryChargeAmount === 0 ? 'text-green-600 font-semibold' : 'font-semibold'}>
+                      <span className="text-black">Delivery:</span>
+                      <span className={deliveryChargeAmount === 0 ? 'text-black font-semibold' : 'font-semibold'}>
                         {deliveryChargeAmount === 0 ? 'FREE' : `₹${deliveryChargeAmount}`}
                       </span>
                     </div>
                     <div className="flex justify-between text-lg font-bold">
                       <span>Total:</span>
-                      <span className="text-emerald-700">₹{cartTotal}</span>
+                      <span className="text-black">₹{cartTotal}</span>
                     </div>
                   </div>
 
@@ -1221,7 +1221,7 @@ export default function Home() {
                     </button>
                     <button
                       onClick={clearCart}
-                      className="w-full border border-red-300 text-red-600 py-3 rounded-xl font-semibold hover:bg-red-50"
+                      className="w-full border border-red-300 text-black py-3 rounded-xl font-semibold hover:bg-red-50"
                     >
                       Clear Cart
                     </button>
@@ -1287,7 +1287,7 @@ export default function Home() {
                     </p>
                     <button
                       onClick={() => scrollToSection('products')}
-                      className="bg-white text-emerald-700 px-6 py-3 rounded-lg font-semibold hover:bg-emerald-50"
+                      className="bg-white text-black px-6 py-3 rounded-lg font-semibold hover:bg-emerald-50"
                     >
                       Shop Now
                     </button>
@@ -1325,8 +1325,8 @@ export default function Home() {
               <div key={idx} className="flex items-center gap-2 text-xs md:text-sm whitespace-nowrap">
                 <item.icon />
                 <div>
-                  <span className="font-medium text-gray-800">{item.text}</span>
-                  <span className="text-gray-500 ml-1 hidden sm:inline">{item.sub}</span>
+                  <span className="font-medium text-black">{item.text}</span>
+                  <span className="text-black ml-1 hidden sm:inline">{item.sub}</span>
                 </div>
               </div>
             ))}
@@ -1337,7 +1337,7 @@ export default function Home() {
       {/* Categories Banner */}
       <section className="py-6">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-lg md:text-xl font-bold mb-4">Shop by Category</h2>
+          <h2 className="text-lg md:text-xl font-bold mb-4 text-black">Shop by Category</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {[
               { name: "Whole Spices", image: backgroundImages.category1, count: "9 items", cat: "whole" as Category },
@@ -1354,7 +1354,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 <div className="absolute bottom-2 left-3 text-white">
                   <h3 className="font-semibold text-sm md:text-base">{cat.name}</h3>
-                  <p className="text-xs opacity-90">{cat.count}</p>
+                  <p className="text-xs text-white">{cat.count}</p>
                 </div>
               </motion.div>
             ))}
@@ -1367,7 +1367,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4">
           {/* Section Header with Sorting */}
           <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-            <h2 className="text-lg md:text-xl font-bold">
+            <h2 className="text-lg md:text-xl font-bold text-black">
               {selectedCategory === 'all' ? 'All Spices' : 
                selectedCategory === 'whole' ? 'Whole Spices' :
                selectedCategory === 'powder' ? 'Spice Powders' : 'Seeds'}
@@ -1433,27 +1433,25 @@ export default function Home() {
                 {/* Product Info */}
                 <div className="p-2">
                   <h3 
-                    className="font-medium text-sm line-clamp-1 cursor-pointer hover:text-emerald-600"
+                    className="font-medium text-sm text-black line-clamp-1 cursor-pointer hover:text-black"
                     onClick={() => openProductModal(product)}
                   >
                     {product.name}
                   </h3>
-                  <p className="text-xs text-gray-500 mb-1 line-clamp-1">{product.description}</p>
-                  
-                  {/* Rating */}
+                  <p className="text-xs text-black mb-1 line-clamp-1">{product.description}</p>
                   <div className="flex items-center gap-1 mb-1">
                     <span className="bg-green-600 text-white text-xs px-1 rounded flex items-center gap-0.5">
                       {product.rating} <Icons.Star />
                     </span>
-                    <span className="text-xs text-gray-500">({product.reviews})</span>
+                    <span className="text-xs text-black">({product.reviews})</span>
                   </div>
 
                   {/* Price Range */}
                   <div className="flex items-center gap-1 mb-2">
-                    <span className="font-bold text-sm text-gray-900">
+                    <span className="font-bold text-sm text-black">
                       ₹{Math.min(...Object.values(product.prices))}
                     </span>
-                    <span className="text-xs text-gray-500"> - ₹{Math.max(...Object.values(product.prices))}</span>
+                    <span className="text-xs text-black"> - ₹{Math.max(...Object.values(product.prices))}</span>
                   </div>
 
                   {/* Action Buttons */}
@@ -1479,7 +1477,7 @@ export default function Home() {
           {/* No Results */}
           {filteredProducts.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500">No products found</p>
+              <p className="text-black">No products found</p>
             </div>
           )}
         </div>
@@ -1502,8 +1500,8 @@ export default function Home() {
                   <div className="w-full h-16 bg-emerald-100 rounded-lg mb-2 overflow-hidden">
                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                   </div>
-                  <p className="text-xs font-medium text-center line-clamp-1">{product.name}</p>
-                  <p className="text-xs text-emerald-600 text-center">₹{Math.min(...Object.values(product.prices))}</p>
+                  <p className="text-xs font-medium text-center line-clamp-1 text-black">{product.name}</p>
+                  <p className="text-xs text-black text-center">₹{Math.min(...Object.values(product.prices))}</p>
                 </div>
               ))}
             </div>
@@ -1517,22 +1515,22 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                <span className="text-emerald-600">Our Story</span>
+                <span className="text-black">Our Story</span>
               </h2>
-              <p className="text-gray-600 mb-4">
+              <p className="text-black mb-4">
                 For over three generations, ChefKerala has been synonymous with the finest spices from God's Own Country. Our journey began in 1985 in the spice hills of Kerala, with a simple mission: to bring authentic Kerala spices to kitchens worldwide.
               </p>
-              <p className="text-gray-600 mb-6">
+              <p className="text-black mb-6">
                 Today, we work directly with over 500 farmers across Kerala, ensuring fair prices and sustainable farming practices. Every spice is hand-picked, sun-dried, and carefully graded to meet our exacting standards.
               </p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-emerald-50 p-4 rounded-xl text-center">
-                  <div className="text-2xl font-bold text-emerald-700">500+</div>
-                  <div className="text-sm text-gray-600">Partner Farmers</div>
+                  <div className="text-2xl font-bold text-black">500+</div>
+                  <div className="text-sm text-black">Partner Farmers</div>
                 </div>
                 <div className="bg-orange-50 p-4 rounded-xl text-center">
-                  <div className="text-2xl font-bold text-orange-700">38+</div>
-                  <div className="text-sm text-gray-600">Years of Excellence</div>
+                  <div className="text-2xl font-bold text-black">38+</div>
+                  <div className="text-sm text-black">Years of Excellence</div>
                 </div>
               </div>
             </div>
@@ -1559,7 +1557,7 @@ export default function Home() {
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
                       <Icons.Phone />
                     </div>
-                    <a href="tel:+919567344229" className="text-gray-600 hover:text-emerald-600">
+                    <a href="tel:+919567344229" className="text-black hover:text-black">
                       +91 95673 44229
                     </a>
                   </div>
@@ -1567,7 +1565,7 @@ export default function Home() {
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
                       <Icons.Mail />
                     </div>
-                    <a href="mailto:hello@chefkerala.com" className="text-gray-600 hover:text-emerald-600">
+                    <a href="mailto:hello@chefkerala.com" className="text-black hover:text-black">
                       hello@chefkerala.com
                     </a>
                   </div>
@@ -1575,13 +1573,13 @@ export default function Home() {
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
                       <Icons.Pin />
                     </div>
-                    <span className="text-gray-600">Kochi, Kerala, India</span>
+                    <span className="text-black">Kochi, Kerala, India</span>
                   </div>
                 </div>
               </div>
               <div className="bg-white p-6 rounded-xl">
                 <h3 className="text-xl font-bold mb-4">Quick Order via WhatsApp</h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-black mb-4">
                   Send us your order directly on WhatsApp for faster processing
                 </p>
                 <button
@@ -1611,36 +1609,36 @@ export default function Home() {
                 <Image src="/logo.png" alt="ChefKerala" width={32} height={32} className="rounded-full" />
                 <span className="font-bold">ChefKerala</span>
               </div>
-              <p className="text-gray-400 text-sm">
+              <p className="text-black text-sm">
                 Premium Kerala spices since 1985. Bringing authentic flavors to your kitchen.
               </p>
             </div>
             <div>
               <h4 className="font-semibold mb-3">Quick Links</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><button onClick={() => scrollToSection('about')} className="hover:text-emerald-400">About Us</button></li>
-                <li><button onClick={() => scrollToSection('products')} className="hover:text-emerald-400">Our Products</button></li>
-                <li><a href="#" className="hover:text-emerald-400">Blog</a></li>
-                <li><a href="#" className="hover:text-emerald-400">FAQs</a></li>
+              <ul className="space-y-2 text-sm text-black">
+                <li><button onClick={() => scrollToSection('about')} className="hover:text-black">About Us</button></li>
+                <li><button onClick={() => scrollToSection('products')} className="hover:text-black">Our Products</button></li>
+                <li><a href="#" className="hover:text-black">Blog</a></li>
+                <li><a href="#" className="hover:text-black">FAQs</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-3">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-400">
-                <li><button onClick={() => scrollToSection('contact')} className="hover:text-emerald-400">Contact Us</button></li>
-                <li><a href="#" className="hover:text-emerald-400">Shipping Policy</a></li>
-                <li><a href="#" className="hover:text-emerald-400">Returns & Refunds</a></li>
-                <li><a href="#" className="hover:text-emerald-400">Privacy Policy</a></li>
+              <ul className="space-y-2 text-sm text-black">
+                <li><button onClick={() => scrollToSection('contact')} className="hover:text-black">Contact Us</button></li>
+                <li><a href="#" className="hover:text-black">Shipping Policy</a></li>
+                <li><a href="#" className="hover:text-black">Returns & Refunds</a></li>
+                <li><a href="#" className="hover:text-black">Privacy Policy</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-semibold mb-3">Newsletter</h4>
-              <p className="text-sm text-gray-400 mb-3">Subscribe for recipes and offers</p>
+              <p className="text-sm text-black mb-3">Subscribe for recipes and offers</p>
               <div className="flex">
                 <input
                   type="email"
                   placeholder="Your email"
-                  className="px-3 py-2 rounded-l-lg w-full text-gray-900 text-sm"
+                  className="px-3 py-2 rounded-l-lg w-full text-black text-sm"
                 />
                 <button className="bg-emerald-600 px-4 py-2 rounded-r-lg hover:bg-emerald-700 text-sm">
                   Subscribe
@@ -1648,7 +1646,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-6 text-center text-gray-400 text-sm">
+          <div className="border-t border-gray-800 pt-6 text-center text-black text-sm">
             <p>© {new Date().getFullYear()} ChefKerala. All rights reserved.</p>
           </div>
         </div>
