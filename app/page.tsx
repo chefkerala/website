@@ -1,9 +1,41 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+// Type definitions
+type WeightOption = "100g" | "200g" | "400g";
+type PriceMap = Record<WeightOption, number>;
+type Category = "whole" | "powder" | "seeds" | "all";
+
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  fullDescription: string;
+  image: string;
+  rating: number;
+  reviews: number;
+  prices: PriceMap;
+  category: Exclude<Category, "all">;
+  badge: string;
+  inStock: boolean;
+  origin: string;
+  harvestYear: number;
+  benefits: string[];
+}
+
+interface CartItem extends Product {
+  selectedWeight: WeightOption;
+  quantity: number;
+  subtotal: number;
+}
+
+interface Notification {
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
 
 // Icons using emoji (reliable and lightweight)
 const Icons = {
@@ -12,8 +44,6 @@ const Icons = {
   Menu: () => <span className="text-xl">☰</span>,
   Close: () => <span className="text-xl">✕</span>,
   Star: () => <span className="text-yellow-400 text-lg">★</span>,
-  StarHalf: () => <span className="text-yellow-400 text-lg">½</span>,
-  StarEmpty: () => <span className="text-gray-300 text-lg">☆</span>,
   Truck: () => <span className="text-xl">🚚</span>,
   Shield: () => <span className="text-xl">🛡️</span>,
   Leaf: () => <span className="text-xl">🌿</span>,
@@ -60,8 +90,8 @@ const backgroundImages = {
   about: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=800&h=600&fit=crop&auto=format"
 };
 
-// Product Data with exact pricing
-const spices = [
+// Product Data with exact pricing and proper typing
+const spices: Product[] = [
   // Whole Spices
   {
     id: 1,
@@ -307,33 +337,40 @@ const spices = [
 ];
 
 export default function Home() {
-  // State Management
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [quantities, setQuantities] = useState({});
-  const [showScrollTop, setShowScrollTop] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showCart, setShowCart] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [notification, setNotification] = useState(null);
-  const [wishlist, setWishlist] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("popular");
-  const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
-  const [deliveryPincode, setDeliveryPincode] = useState("");
-  const [showPincodeModal, setShowPincodeModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [showProductModal, setShowProductModal] = useState(false);
-  const [quickViewProduct, setQuickViewProduct] = useState(null);
+  // State Management with proper types
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showCart, setShowCart] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [notification, setNotification] = useState<Notification | null>(null);
+  const [wishlist, setWishlist] = useState<number[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category>("all");
+  const [sortBy, setSortBy] = useState<string>("popular");
+  const [currentHeroSlide, setCurrentHeroSlide] = useState<number>(0);
+  const [deliveryPincode, setDeliveryPincode] = useState<string>("");
+  const [showPincodeModal, setShowPincodeModal] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showProductModal, setShowProductModal] = useState<boolean>(false);
 
   // Load cart from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem('chefkerala-cart');
     if (savedCart) {
-      setQuantities(JSON.parse(savedCart));
+      try {
+        setQuantities(JSON.parse(savedCart));
+      } catch (e) {
+        console.error('Failed to parse cart from localStorage');
+      }
     }
     const savedWishlist = localStorage.getItem('chefkerala-wishlist');
     if (savedWishlist) {
-      setWishlist(JSON.parse(savedWishlist));
+      try {
+        setWishlist(JSON.parse(savedWishlist));
+      } catch (e) {
+        console.error('Failed to parse wishlist from localStorage');
+      }
     }
     setIsLoading(false);
   }, []);
@@ -369,52 +406,53 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Computed Values
-  const totalItems = useMemo(() => 
-    Object.values(quantities).reduce((a, b) => a + b, 0), [quantities]
+  // Computed Values with proper types
+  const totalItems = useMemo<number>(() => 
+    Object.values(quantities).reduce((a: number, b: number) => a + b, 0), [quantities]
   );
 
-  const cartSubtotal = useMemo(() => {
+  const cartSubtotal = useMemo<number>(() => {
     let total = 0;
     Object.entries(quantities).forEach(([key, qty]) => {
       if (qty > 0) {
         const [productId, weight] = key.split('-');
         const product = spices.find(s => s.id === parseInt(productId));
-        if (product) {
-          total += product.prices[weight] * qty;
+        if (product && weight in product.prices) {
+          total += product.prices[weight as WeightOption] * qty;
         }
       }
     });
     return total;
   }, [quantities]);
 
-  const itemCount = useMemo(() => totalItems, [totalItems]);
+  const itemCount = useMemo<number>(() => totalItems, [totalItems]);
   
   // Calculate delivery charge
-  const deliveryChargeAmount = useMemo(() => {
+  const deliveryChargeAmount = useMemo<number>(() => {
     if (cartSubtotal >= 500) return 0;
     if (itemCount >= 5) return 100;
     if (itemCount >= 1) return 50;
     return 0;
   }, [cartSubtotal, itemCount]);
 
-  const cartTotal = useMemo(() => 
+  const cartTotal = useMemo<number>(() => 
     cartSubtotal + deliveryChargeAmount, 
     [cartSubtotal, deliveryChargeAmount]
   );
 
-  const cartItems = useMemo(() => {
-    const items = [];
+  const cartItems = useMemo<CartItem[]>(() => {
+    const items: CartItem[] = [];
     Object.entries(quantities).forEach(([key, qty]) => {
       if (qty > 0) {
         const [productId, weight] = key.split('-');
         const product = spices.find(s => s.id === parseInt(productId));
-        if (product) {
+        if (product && weight in product.prices) {
+          const weightTyped = weight as WeightOption;
           items.push({
             ...product,
-            selectedWeight: weight,
+            selectedWeight: weightTyped,
             quantity: qty,
-            subtotal: product.prices[weight] * qty
+            subtotal: product.prices[weightTyped] * qty
           });
         }
       }
@@ -422,7 +460,7 @@ export default function Home() {
     return items;
   }, [quantities]);
 
-  const filteredProducts = useMemo(() => {
+  const filteredProducts = useMemo<Product[]>(() => {
     let filtered = spices;
     
     // Apply search
@@ -463,13 +501,13 @@ export default function Home() {
   }, [searchQuery, selectedCategory, sortBy]);
 
   // Notification System
-  const showNotification = useCallback((message, type = 'success') => {
+  const showNotification = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 3000);
   }, []);
 
   // Cart Functions
-  const addToCart = useCallback((productId, weight, quantity = 1) => {
+  const addToCart = useCallback((productId: number, weight: WeightOption, quantity: number = 1) => {
     setQuantities(prev => {
       const key = `${productId}-${weight}`;
       const current = prev[key] || 0;
@@ -478,7 +516,7 @@ export default function Home() {
     showNotification('Added to cart!', 'success');
   }, [showNotification]);
 
-  const updateQuantity = useCallback((productId, weight, change) => {
+  const updateQuantity = useCallback((productId: number, weight: WeightOption, change: number) => {
     setQuantities(prev => {
       const key = `${productId}-${weight}`;
       const current = prev[key] || 0;
@@ -491,7 +529,7 @@ export default function Home() {
     });
   }, []);
 
-  const removeFromCart = useCallback((productId, weight) => {
+  const removeFromCart = useCallback((productId: number, weight: WeightOption) => {
     setQuantities(prev => {
       const newQuantities = { ...prev };
       delete newQuantities[`${productId}-${weight}`];
@@ -506,14 +544,14 @@ export default function Home() {
   }, [showNotification]);
 
   // Buy Now Function
-  const buyNow = useCallback((product, weight) => {
+  const buyNow = useCallback((product: Product, weight: WeightOption) => {
     setQuantities({ [`${product.id}-${weight}`]: 1 });
     setShowCart(true);
     showNotification('Proceed to checkout', 'success');
   }, [showNotification]);
 
   // Wishlist Functions
-  const toggleWishlist = useCallback((productId) => {
+  const toggleWishlist = useCallback((productId: number) => {
     setWishlist(prev => 
       prev.includes(productId) 
         ? prev.filter(id => id !== productId)
@@ -526,7 +564,7 @@ export default function Home() {
   }, [wishlist, showNotification]);
 
   // WhatsApp Message Generation
-  const generateWhatsAppMessage = useCallback(() => {
+  const generateWhatsAppMessage = useCallback((): string => {
     let message = "🛒 *NEW ORDER - ChefKerala*\n\n";
     message += "━━━━━━━━━━━━━━━━━━━━\n\n";
     
@@ -594,22 +632,17 @@ export default function Home() {
   }, [deliveryPincode, generateWhatsAppMessage, showNotification]);
 
   // Open Product Modal
-  const openProductModal = useCallback((product) => {
+  const openProductModal = useCallback((product: Product) => {
     setSelectedProduct(product);
     setShowProductModal(true);
-  }, []);
-
-  // Quick View
-  const quickView = useCallback((product) => {
-    setQuickViewProduct(product);
   }, []);
 
   const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const scrollToSection = useCallback((sectionId) => {
-    const section = document.getElementById(sectionid);
+  const scrollToSection = useCallback((sectionId: string) => {
+    const section = document.getElementById(sectionId);
     if (section) {
       section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -743,7 +776,7 @@ export default function Home() {
                     {/* Prices and Add to Cart */}
                     <div className="space-y-3 mb-4">
                       <h3 className="font-semibold">Available Sizes:</h3>
-                      {Object.entries(selectedProduct.prices).map(([weight, price]) => {
+                      {(Object.entries(selectedProduct.prices) as [WeightOption, number][]).map(([weight, price]) => {
                         const key = `${selectedProduct.id}-${weight}`;
                         const qty = quantities[key] || 0;
                         return (
@@ -784,7 +817,7 @@ export default function Home() {
                     <div className="flex gap-3">
                       <button
                         onClick={() => {
-                          Object.entries(selectedProduct.prices).forEach(([weight]) => {
+                          (Object.keys(selectedProduct.prices) as WeightOption[]).forEach((weight) => {
                             addToCart(selectedProduct.id, weight, 1);
                           });
                           setShowProductModal(false);
@@ -915,10 +948,10 @@ export default function Home() {
               {/* Categories - Desktop */}
               <div className="hidden md:flex items-center gap-6">
                 {[
-                  { id: 'all', name: 'All Spices' },
-                  { id: 'whole', name: 'Whole Spices' },
-                  { id: 'powder', name: 'Powders' },
-                  { id: 'seeds', name: 'Seeds' }
+                  { id: 'all' as Category, name: 'All Spices' },
+                  { id: 'whole' as Category, name: 'Whole Spices' },
+                  { id: 'powder' as Category, name: 'Powders' },
+                  { id: 'seeds' as Category, name: 'Seeds' }
                 ].map((cat) => (
                   <button
                     key={cat.id}
@@ -1003,10 +1036,10 @@ export default function Home() {
           >
             <div className="p-4 grid grid-cols-2 gap-2">
               {[
-                { id: 'all', name: 'All Spices', icon: '🛒' },
-                { id: 'whole', name: 'Whole Spices', icon: '🌰' },
-                { id: 'powder', name: 'Powders', icon: '🧂' },
-                { id: 'seeds', name: 'Seeds', icon: '🌱' }
+                { id: 'all' as Category, name: 'All Spices', icon: '🛒' },
+                { id: 'whole' as Category, name: 'Whole Spices', icon: '🌰' },
+                { id: 'powder' as Category, name: 'Powders', icon: '🧂' },
+                { id: 'seeds' as Category, name: 'Seeds', icon: '🌱' }
               ].map((cat) => (
                 <button
                   key={cat.id}
@@ -1228,7 +1261,7 @@ export default function Home() {
               className="absolute inset-0"
             >
               <img
-                src={backgroundImages[`hero${currentHeroSlide + 1}`]}
+                src={backgroundImages[`hero${currentHeroSlide + 1}` as keyof typeof backgroundImages]}
                 alt={`Hero ${currentHeroSlide + 1}`}
                 className="w-full h-full object-cover"
               />
@@ -1307,9 +1340,9 @@ export default function Home() {
           <h2 className="text-lg md:text-xl font-bold mb-4">Shop by Category</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {[
-              { name: "Whole Spices", image: backgroundImages.category1, count: "9 items", cat: "whole" },
-              { name: "Spice Powders", image: backgroundImages.category2, count: "6 items", cat: "powder" },
-              { name: "Seeds", image: backgroundImages.category3, count: "4 items", cat: "seeds" }
+              { name: "Whole Spices", image: backgroundImages.category1, count: "9 items", cat: "whole" as Category },
+              { name: "Spice Powders", image: backgroundImages.category2, count: "6 items", cat: "powder" as Category },
+              { name: "Seeds", image: backgroundImages.category3, count: "4 items", cat: "seeds" as Category }
             ].map((cat, idx) => (
               <motion.div
                 key={idx}
@@ -1452,7 +1485,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Recently Viewed - Would need actual tracking */}
+      {/* Recommendations */}
       {cartItems.length > 0 && (
         <section className="py-6 bg-white">
           <div className="max-w-7xl mx-auto px-4">
