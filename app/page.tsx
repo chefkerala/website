@@ -351,6 +351,13 @@ export default function Home() {
   const [currentHeroSlide, setCurrentHeroSlide] = useState<number>(0);
   const [deliveryPincode, setDeliveryPincode] = useState<string>("");
   const [showPincodeModal, setShowPincodeModal] = useState<boolean>(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState<boolean>(false);
+  const [checkoutPayment, setCheckoutPayment] = useState<'cod'|'whatsapp'|'none'>('none');
+  const [customerName, setCustomerName] = useState<string>('');
+  const [customerPhone, setCustomerPhone] = useState<string>('');
+  const [customerAddress, setCustomerAddress] = useState<string>('');
+  const [customerEmail, setCustomerEmail] = useState<string>('');
+  const [customerWhatsapp, setCustomerWhatsapp] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showProductModal, setShowProductModal] = useState<boolean>(false);
 
@@ -565,7 +572,7 @@ export default function Home() {
 
   // WhatsApp Message Generation
   const generateWhatsAppMessage = useCallback((): string => {
-    let message = "🛒 *NEW ORDER - ChefKerala*\n\n";
+    let message = "🛒 *NEW ORDER - CKERALA FOOD PRODUCTS LLP*\n\n";
     message += "━━━━━━━━━━━━━━━━━━━━\n\n";
     
     cartItems.forEach(item => {
@@ -585,18 +592,20 @@ export default function Home() {
     message += `*TOTAL: ₹${cartTotal}*\n\n`;
     message += "━━━━━━━━━━━━━━━━━━━━\n\n";
     message += "📍 *DELIVERY DETAILS:*\n";
-    message += "• Full Name:\n";
-    message += "• Phone Number:\n";
-    message += "• Complete Address:\n";
-    message += "• Pincode:\n";
+    message += `• Full Name: ${customerName || ''}\n`;
+    message += `• Phone Number: ${customerPhone || ''}\n`;
+    if (customerWhatsapp) message += `• WhatsApp Number: ${customerWhatsapp}\n`;
+    if (customerEmail) message += `• Email: ${customerEmail}\n`;
+    message += `• Complete Address: ${customerAddress || ''}\n`;
+    message += `• Pincode: ${deliveryPincode || ''}\n`;
     message += "• Landmark:\n\n";
     message += "💰 *PAYMENT METHOD:* Cash on Delivery\n\n";
     message += "━━━━━━━━━━━━━━━━━━━━\n";
-    message += "_Thank you for choosing ChefKerala!_\n";
+    message += "_Thank you for choosing CKERALA FOOD PRODUCTS LLP!_\n";
     message += "_We'll confirm your order shortly._ 🌿";
     
     return encodeURIComponent(message);
-  }, [cartItems, cartSubtotal, cartTotal, deliveryChargeAmount]);
+  }, [cartItems, cartSubtotal, cartTotal, deliveryChargeAmount, customerName, customerPhone, customerAddress, customerEmail, customerWhatsapp, deliveryPincode]);
 
   // WhatsApp Order Handler
   const handleWhatsAppOrder = useCallback(() => {
@@ -604,8 +613,8 @@ export default function Home() {
       showNotification("Your cart is empty!", 'error');
       return;
     }
-    window.open(`https://wa.me/919567344229?text=${generateWhatsAppMessage()}`, '_blank');
-    showNotification('Redirecting to WhatsApp...', 'success');
+    setCheckoutPayment('whatsapp');
+    setShowCheckoutModal(true);
   }, [totalItems, generateWhatsAppMessage, showNotification]);
 
   // COD Order Handler
@@ -614,22 +623,26 @@ export default function Home() {
       showNotification("Your cart is empty!", 'error');
       return;
     }
-    setShowPincodeModal(true);
+    setCheckoutPayment('cod');
+    setShowCheckoutModal(true);
   }, [totalItems]);
 
-  const confirmCODOrder = useCallback(() => {
-    if (!deliveryPincode || deliveryPincode.length !== 6) {
-      showNotification("Please enter valid 6-digit pincode", 'error');
-      return;
-    }
-    
-    const message = generateWhatsAppMessage() + `\n*Pincode:* ${deliveryPincode}\n*Payment:* Cash on Delivery`;
-    window.open(`https://wa.me/919567344229?text=${message}`, '_blank');
-    setShowPincodeModal(false);
+  const confirmCheckout = useCallback(() => {
+    // Validate required fields
+    if (!customerName.trim()) { showNotification('Please enter full name', 'error'); return; }
+    if (!customerPhone.trim()) { showNotification('Please enter phone number', 'error'); return; }
+    if (!customerAddress.trim()) { showNotification('Please enter delivery address', 'error'); return; }
+    if (!deliveryPincode || deliveryPincode.length !== 6) { showNotification('Please enter valid 6-digit pincode', 'error'); return; }
+
+    const paymentLabel = checkoutPayment === 'cod' ? 'Cash on Delivery' : 'Order on WhatsApp';
+    const message = generateWhatsAppMessage() + `\n*Payment:* ${paymentLabel}`;
+    window.open(`https://wa.me/919744137812?text=${message}`, '_blank');
+    setShowCheckoutModal(false);
     setShowCart(false);
     setDeliveryPincode("");
+    setCustomerName(''); setCustomerPhone(''); setCustomerAddress(''); setCustomerEmail(''); setCustomerWhatsapp('');
     showNotification('Order placed! Check WhatsApp to confirm.', 'success');
-  }, [deliveryPincode, generateWhatsAppMessage, showNotification]);
+  }, [customerName, customerPhone, customerAddress, customerEmail, customerWhatsapp, deliveryPincode, checkoutPayment, generateWhatsAppMessage, showNotification]);
 
   // Open Product Modal
   const openProductModal = useCallback((product: Product) => {
@@ -874,11 +887,78 @@ export default function Home() {
                 maxLength={6}
               />
               <button
-                onClick={confirmCODOrder}
+                onClick={confirmCheckout}
                 className="w-full bg-emerald-600 text-white py-3 rounded-xl font-semibold hover:bg-emerald-700 transition-colors"
               >
                 Continue with COD
               </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Checkout Modal - collects customer details for COD or WhatsApp orders */}
+      <AnimatePresence>
+        {showCheckoutModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+            onClick={() => setShowCheckoutModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 8 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 8 }}
+              className="bg-white rounded-2xl max-w-lg w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-bold">Checkout Details</h3>
+                <button onClick={() => setShowCheckoutModal(false)} className="p-2">
+                  <Icons.Close />
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium">Full Name *</label>
+                  <input value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-sm font-medium">Mobile Number *</label>
+                    <input value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">WhatsApp (optional)</label>
+                    <input value={customerWhatsapp} onChange={(e) => setCustomerWhatsapp(e.target.value.replace(/\D/g, '').slice(0, 15))} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Email (optional)</label>
+                  <input value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded" />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Address *</label>
+                  <textarea value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} rows={3} className="w-full mt-1 px-3 py-2 border border-gray-200 rounded" />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Pincode *</label>
+                  <input value={deliveryPincode} onChange={(e) => setDeliveryPincode(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="6-digit pincode" className="w-full mt-1 px-3 py-2 border border-gray-200 rounded" />
+                </div>
+
+                <div className="flex gap-2 mt-4">
+                  <button onClick={confirmCheckout} className="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-semibold">Confirm & Send</button>
+                  <button onClick={() => setShowCheckoutModal(false)} className="flex-1 border border-gray-300 py-3 rounded-xl">Cancel</button>
+                </div>
+                <p className="text-xs text-gray-500">* Required fields. We will contact you on the provided mobile/WhatsApp number.</p>
+              </div>
             </motion.div>
           </motion.div>
         )}
@@ -930,19 +1010,16 @@ export default function Home() {
                 className="flex items-center gap-2 cursor-pointer"
                 onClick={() => scrollToSection('home')}
               >
-                <div className="relative w-8 h-8 md:w-10 md:h-10">
+                <div className="relative w-12 h-12 md:w-20 md:h-20">
                   <Image
-                    src="/logo.png"
-                    alt="ChefKerala"
+                    src="/faviconlogo.png"
+                    alt="CKERALA FOOD PRODUCTS LLP"
                     fill
-                    className="object-contain rounded-full"
+                    className="object-contain"
                     priority
                   />
                 </div>
-                <div className="hidden sm:block">
-                  <h1 className="text-base md:text-lg font-bold text-black">ChefKerala</h1>
-                  <p className="text-[10px] text-black">Premium Spices</p>
-                </div>
+                {/* Visual logo only; brand text removed */}
               </motion.div>
 
               {/* Categories - Desktop */}
@@ -1557,23 +1634,23 @@ export default function Home() {
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
                       <Icons.Phone />
                     </div>
-                    <a href="tel:+919567344229" className="text-black hover:text-black">
-                      +91 95673 44229
+                    <a href="tel:+919744137812" className="text-black hover:text-black">
+                      +91 97441 37812
                     </a>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
                       <Icons.Mail />
                     </div>
-                    <a href="mailto:hello@chefkerala.com" className="text-black hover:text-black">
-                      hello@chefkerala.com
+                    <a href="mailto:info@chefkerala.com" className="text-black hover:text-black">
+                      info@chefkerala.com
                     </a>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
                       <Icons.Pin />
                     </div>
-                    <span className="text-black">Kochi, Kerala, India</span>
+                    <span className="text-black">67/A, Muttil, Wayanad 673122</span>
                   </div>
                 </div>
               </div>
@@ -1587,7 +1664,7 @@ export default function Home() {
                     if (totalItems > 0) {
                       setShowCart(true);
                     } else {
-                      window.open(`https://wa.me/919567344229?text=Hi, I'm interested in your spices`, '_blank');
+                      window.open(`https://wa.me/919744137812?text=Hi, I'm interested in your spices`, '_blank');
                     }
                   }}
                   className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold hover:bg-green-700 flex items-center justify-center gap-2"
@@ -1606,11 +1683,14 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <Image src="/logo.png" alt="ChefKerala" width={32} height={32} className="rounded-full" />
-                <span className="font-bold">ChefKerala</span>
+                <Image src="/faviconlogo.png" alt="CKERALA FOOD PRODUCTS LLP" width={40} height={40} />
+                <div>
+                  <div className="font-bold">CKERALA FOOD PRODUCTS LLP</div>
+                  <div className="text-sm text-black">67/A, Muttil, Wayanad 673122</div>
+                </div>
               </div>
               <p className="text-black text-sm">
-                Premium Kerala spices since 1985. Bringing authentic flavors to your kitchen.
+                Premium Kerala spices since 1985. Contact: info@chefkerala.com | +91 97441 37812
               </p>
             </div>
             <div>
